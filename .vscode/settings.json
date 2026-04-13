@@ -125,6 +125,7 @@
 			"pacman",
 			"shfmt",
 			"bashisms",
+			"vgchange",
 			"mountpoint",
 			"coreutils",
 			"e2fsprogs",
