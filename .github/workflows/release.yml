@@ -21,7 +21,7 @@ jobs:
       - name: Get version from script
         id: version
         run: |
-          VERSION=$(grep 'VERSION=' auto-chroot.sh | head -n1 | cut -d'"' -f2)
+          VERSION=$(grep 'VERSION=' init.sh | head -n1 | cut -d'"' -f2)
           echo "VERSION=$VERSION" >> $GITHUB_ENV
 
       - name: Check if tag exists
@@ -42,11 +42,11 @@ jobs:
           git push origin "v$VERSION"
 
       # ----------------------------
-      # Generate SHA256 (ESSENCIAL)
+      # Generate SHA256
       # ----------------------------
       - name: Generate SHA256
         run: |
-          sha256sum auto-chroot.sh > auto-chroot.sh.sha256
+          sha256sum init.sh > auto-chroot.sh.sha256
 
       # ----------------------------
       # Generate CHANGELOG
@@ -70,7 +70,7 @@ jobs:
       - name: Prepare release files
         run: |
           mkdir dist
-          cp auto-chroot.sh dist/
+          cp init.sh dist/auto-chroot.sh
           cp auto-chroot.sh.sha256 dist/
           cp LICENSE dist/
           cp README.md dist/
@@ -94,3 +94,39 @@ jobs:
             CHANGELOG.md
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+
+			- name: Prepare GitHub Pages files
+        run: |
+          VERSION=${{ env.VERSION }}
+
+          cat > pages/auto-chroot/latest << EOF
+#!/usr/bin/env sh
+set -e
+VERSION="$VERSION"
+BASE="https://github.com/williamcanin/auto-chroot/releases/download/v\$VERSION"
+URL="\$BASE/init.sh"
+HASH_URL="\$BASE/init.sh.sha256"
+
+CACHE="/run/auto-chroot"
+SCRIPT="\$CACHE/init.sh"
+
+mkdir -p "\$CACHE"
+
+TMP="\$(mktemp)"
+TMP_HASH="\$(mktemp)"
+
+curl -fsSL "\$URL" -o "\$TMP"
+curl -fsSL "\$HASH_URL" -o "\$TMP_HASH"
+
+EXPECTED="\$(cut -d' ' -f1 "\$TMP_HASH")"
+ACTUAL="\$(sha256sum "\$TMP" | cut -d' ' -f1)"
+
+[ "\$EXPECTED" != "\$ACTUAL" ] && { echo "Hash mismatch"; exit 1; }
+
+mv "\$TMP" "\$SCRIPT"
+sh "\$SCRIPT"
+EOF
+
+          # versioned pointer
+          cp pages/auto-chroot/latest pages/auto-chroot/v$VERSION
