@@ -62,7 +62,7 @@ jobs:
           export VERSION=${{ env.VERSION }}
 
           envsubst < .github/pages/index.html.template > pages/index.html
-          envsubst < .github/pages/latest.template > pages/auto-chroot/latest
+          sed "s/__VERSION__/${{ env.VERSION }}/g" .github/pages/latest.template > pages/auto-chroot/latest
 
           chmod +x pages/auto-chroot/latest
           cp pages/auto-chroot/latest pages/auto-chroot/v$VERSION
