@@ -12,9 +12,7 @@ It is designed for use in Arch Linux live environments (archiso), system recover
 
 ## CI Status
 
-[![Auto-chroot real environment tests](https://github.com/williamcanin/auto-chroot/actions/workflows/ci.yml/badge.svg)](https://github.com/williamcanin/auto-chroot/actions/workflows/ci.yml)
-
-[![Auto Release (auto-chroot)](https://github.com/williamcanin/auto-chroot/actions/workflows/release.yml/badge.svg)](https://github.com/williamcanin/auto-chroot/actions/workflows/release.yml)
+[![Auto-chroot real environment tests](https://github.com/williamcanin/auto-chroot/actions/workflows/ci.yml/badge.svg)](https://github.com/williamcanin/auto-chroot/actions/workflows/ci.yml) [![Auto Release (auto-chroot)](https://github.com/williamcanin/auto-chroot/actions/workflows/release.yml/badge.svg)](https://github.com/williamcanin/auto-chroot/actions/workflows/release.yml)
 
 ## Features
 
@@ -48,13 +46,13 @@ These are already available in official Arch Linux ISO.
 Boot into an Arch Linux live environment and run:
 
 ```sh
-sh <(curl -fsSL https://williamcanin.github.io/installers/auto-chroot/latest)
+sh <(curl -fsSL https://williamcanin.github.io/auto-chroot/latest)
 ```
 
 Alternatively:
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/williamcanin/auto-chroot/main/auto-chroot.sh -o auto-chroot.sh
+curl -fsSL https://raw.githubusercontent.com/williamcanin/auto-chroot/main/init.sh -o auto-chroot.sh
 chmod +x auto-chroot.sh
 sh auto-chroot.sh
 ```

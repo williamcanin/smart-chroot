@@ -1,4 +1,4 @@
-# Contributing to auto-chroot tool
+# Contributing to init.sh tool
 
 Thank you for your interest in contributing to this project.
 
@@ -64,7 +64,7 @@ The script relies only on:
 You can simulate execution safely using a container or VM:
 
 ```sh
-sh auto-chroot.sh
+sh init.sh.sh
 ```
 
 For testing logic only (without real mounts), use a disposable container environment.
