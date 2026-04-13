@@ -153,3 +153,13 @@ See `CONTRIBUTING.md` for development guidelines and environment setup.
 MIT License © William Canin
 
 See `LICENSE` file for details.
+
+# Donation
+
+If you liked this project and enjoyed it, buy me a coffee; it motivates me to continue providing support.
+
+<div class="donation">
+  <a href="https://williamcanin.github.io/donate/" target="_blank">
+    <img width="160" height="100" src="assets/images/icons/donation.svg" alt="Donate"/>
+  </a>
+</div>
