@@ -1,0 +1,57 @@
+#!/usr/bin/env sh
+set -e
+
+## Sample modo - no detect SHA256
+# exec sh <(curl -fsSL https://raw.githubusercontent.com/williamcanin/auto-chroot/main/init.sh)
+
+## Mode detect SHA256
+VERSION="0.1.3"
+
+CACHE="/run/auto-chroot"
+SCRIPT="/auto-chroot.sh"
+HASH="/auto-chroot.sh.sha256"
+BASE="https://github.com/williamcanin/auto-chroot/releases/download/v0.1.3"
+URL="/auto-chroot.sh"
+HASH_URL="/auto-chroot.sh.sha256"
+
+
+mkdir -p ""
+
+online() {
+  ping -c1 -W1 github.com >/dev/null 2>&1
+}
+
+download_and_verify() {
+  echo "Online mode: downloading auto-chroot..."
+
+  TMP="$(mktemp)"
+  TMP_HASH="$(mktemp)"
+
+  curl -fsSL "" -o ""
+  curl -fsSL "" -o ""
+
+  EXPECTED="$(cut -d' ' -f1 "")"
+  ACTUAL="$(sha256sum "" | cut -d' ' -f1)"
+
+  if [ "" != "" ]; then
+    echo "Hash mismatch! Aborting."
+    exit 1
+  fi
+
+  mv "" ""
+  mv "" ""
+}
+
+if online; then
+  download_and_verify
+else
+  echo "Offline mode detected."
+fi
+
+if [ ! -f "" ]; then
+  echo "No cached version available and no internet."
+  exit 1
+fi
+
+echo "Executing auto-chroot..."
+sh ""
