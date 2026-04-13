@@ -118,6 +118,7 @@
 			"williamcanin",
 			"LUKS",
 			"cryptsetup",
+			"PARTTYPE",
 			"rpno",
 			"blkid",
 			"vfat",
