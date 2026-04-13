@@ -64,7 +64,7 @@ The script relies only on:
 You can simulate execution safely using a container or VM:
 
 ```sh
-sh chroot.sh
+sh auto-chroot.sh
 ```
 
 For testing logic only (without real mounts), use a disposable container environment.
