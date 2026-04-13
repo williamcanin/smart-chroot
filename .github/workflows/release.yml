@@ -7,6 +7,8 @@ on:
 
 permissions:
   contents: write
+  pages: write
+  id-token: write
 
 jobs:
   release:
@@ -69,14 +71,14 @@ jobs:
       # ----------------------------
       - name: Prepare release files
         run: |
-          mkdir dist
+          mkdir -p dist
           cp init.sh dist/auto-chroot.sh
           cp auto-chroot.sh.sha256 dist/
           cp LICENSE dist/
           cp README.md dist/
           cp CHANGELOG.md dist/
 
-          tar -czf auto-chroot-$VERSION.tar.gz -C dist .
+          tar -czf auto-chroot-${{ env.VERSION }}.tar.gz -C dist .
 
       # ----------------------------
       # Create GitHub Release
@@ -88,12 +90,16 @@ jobs:
           name: auto-chroot v${{ env.VERSION }}
           body_path: CHANGELOG.md
           files: |
-            auto-chroot.sh
-            auto-chroot.sh.sha256
+            dist/auto-chroot.sh
+            dist/auto-chroot.sh.sha256
             auto-chroot-${{ env.VERSION }}.tar.gz
             CHANGELOG.md
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # ----------------------------
+      # Prepare GitHub Pages files
+      # ----------------------------
       - name: Prepare GitHub Pages files
         run: |
           mkdir -p pages/auto-chroot
@@ -101,3 +107,17 @@ jobs:
 
           envsubst < .github/pages/latest.template > pages/auto-chroot/latest
           cp pages/auto-chroot/latest pages/auto-chroot/v$VERSION
+
+      # ----------------------------
+      # Deploy GitHub Pages
+      # ----------------------------
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: pages
+
+      - name: Deploy to GitHub Pages
+        uses: actions/deploy-pages@v4
