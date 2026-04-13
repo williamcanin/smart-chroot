@@ -25,13 +25,16 @@ esac
 
 echo "Step 1: Detecting and unlocking LUKS containers..."
 
-# Only check REAL block devices (no mapper, no loop)
-for dev in $(lsblk -rpno NAME,TYPE | awk '$2=="part"{print $1}'); do
-  if cryptsetup isLuks "$dev" 2>/dev/null; then
-    name="luks_$(basename "$dev")"
-    echo "LUKS found on $dev"
-    cryptsetup open "$dev" "$name"
+lsblk -rpno NAME,FSTYPE | awk '$2=="crypto_LUKS"{print $1}' | while read -r dev; do
+  base="$(basename "$dev")"
+
+  if lsblk "$dev" -rno TYPE | grep -q "crypt"; then
+    echo "LUKS already unlocked: $dev"
+    continue
   fi
+
+  echo "LUKS found (locked) on $dev, opening..."
+  cryptsetup open "$dev" "luks-$base"
 done
 
 echo "Step 2: Activating LVM volumes..."
@@ -41,9 +44,9 @@ echo "Step 3: Searching for ROOT filesystem..."
 
 ROOT=""
 
-for dev in $(lsblk -rpno NAME,TYPE | awk '$2=="lvm" || $2=="part"{print $1}'); do
+for dev in $(lsblk -rpno NAME,FSTYPE | awk '$2~/^(ext[234]|btrfs|xfs)$/{print $1}'); do
   if mount "$dev" "$PROBE" 2>/dev/null; then
-    if [ -f "$PROBE/etc/os-release" ]; then
+    if [ -f "$PROBE/etc/os-release" ] && [ -d "$PROBE/bin" ] && [ -d "$PROBE/etc" ]; then
       ROOT="$dev"
       umount "$PROBE"
       break
@@ -62,16 +65,22 @@ mount "$ROOT" "$MNT"
 
 echo "Step 4: Detecting EFI partition..."
 
-for dev in $(lsblk -rpno NAME,FSTYPE | awk '$2=="vfat"{print $1}'); do
-  if mount "$dev" "$PROBE" 2>/dev/null; then
-    if [ -d "$PROBE/EFI" ]; then
-      EFI="$dev"
+# Try via PARTTYPE (GPT)
+EFI=$(lsblk -rpno NAME,PARTTYPE | awk '$2=="c12a7328-f81f-11d2-ba4b-00a0c93ec93b"{print $1; exit}')
+
+# Fallback: mount and verify (MBR or edge cases)
+if [ -z "$EFI" ]; then
+  for dev in $(lsblk -rpno NAME,FSTYPE | awk '$2=="vfat"{print $1}'); do
+    if mount "$dev" "$PROBE" 2>/dev/null; then
+      if [ -d "$PROBE/EFI" ]; then
+        EFI="$dev"
+        umount "$PROBE"
+        break
+      fi
       umount "$PROBE"
-      break
     fi
-    umount "$PROBE"
-  fi
-done
+  done
+fi
 
 if [ -n "$EFI" ]; then
   echo "EFI: $EFI"
@@ -80,17 +89,17 @@ if [ -n "$EFI" ]; then
 fi
 
 echo "Step 5: Detecting separate /home..."
+HOME_DEV=""
 
-for dev in $(lsblk -rpno NAME); do
+for dev in $(lsblk -rpno NAME,FSTYPE | awk '$2~/^(ext[234]|btrfs|xfs)$/{print $1}'); do
   [ "$dev" = "$ROOT" ] && continue
 
-  if mount "$dev" "$PROBE" 2>/dev/null; then
-    if [ -d "$PROBE" ] && [ ! -f "$PROBE/etc/os-release" ]; then
-      if [ -d "$PROBE/lost+found" ]; then
-        HOME_DEV="$dev"
-        umount "$PROBE"
-        break
-      fi
+  if mount -o ro "$dev" "$PROBE" 2>/dev/null; then
+    # It has user directories but is not root.
+    if [ -d "$PROBE/lost+found" ] && [ ! -f "$PROBE/etc/os-release" ] && [ ! -d "$PROBE/bin" ]; then
+      HOME_DEV="$dev"
+      umount "$PROBE"
+      break
     fi
     umount "$PROBE"
   fi
