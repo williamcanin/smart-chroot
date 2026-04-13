@@ -38,16 +38,25 @@ jobs:
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
-
           git tag "v$VERSION"
           git push origin "v$VERSION"
 
+      # ----------------------------
+      # Generate SHA256 (ESSENCIAL)
+      # ----------------------------
+      - name: Generate SHA256
+        run: |
+          sha256sum auto-chroot.sh > auto-chroot.sh.sha256
+
+      # ----------------------------
+      # Generate CHANGELOG
+      # ----------------------------
       - name: Generate CHANGELOG
         run: |
           echo "# Changelog v$VERSION" > CHANGELOG.md
           echo "" >> CHANGELOG.md
 
-          PREV_TAG=$(git describe --tags --abbrev=0 2>/dev/null || true)
+          PREV_TAG=$(git tag --sort=-v:refname | sed -n '2p')
 
           if [ -z "$PREV_TAG" ]; then
             git log --pretty=format:"- %s" >> CHANGELOG.md
@@ -55,16 +64,23 @@ jobs:
             git log "$PREV_TAG"..HEAD --pretty=format:"- %s" >> CHANGELOG.md
           fi
 
+      # ----------------------------
+      # Prepare release files
+      # ----------------------------
       - name: Prepare release files
         run: |
           mkdir dist
           cp auto-chroot.sh dist/
+          cp auto-chroot.sh.sha256 dist/
           cp LICENSE dist/
           cp README.md dist/
           cp CHANGELOG.md dist/
 
           tar -czf auto-chroot-$VERSION.tar.gz -C dist .
 
+      # ----------------------------
+      # Create GitHub Release
+      # ----------------------------
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
@@ -73,6 +89,7 @@ jobs:
           body_path: CHANGELOG.md
           files: |
             auto-chroot.sh
+            auto-chroot.sh.sha256
             auto-chroot-${{ env.VERSION }}.tar.gz
             CHANGELOG.md
         env:
