@@ -12,7 +12,9 @@ It is designed for use in Arch Linux live environments (archiso), system recover
 
 ## CI Status
 
-[![Auto Tests](https://img.shields.io/github/actions/workflow/status/williamcanin/auto-chroot/test.yml?branch=main)](https://github.com/williamcanin/auto-chroot/actions)
+[![Auto-chroot real environment tests](https://github.com/williamcanin/auto-chroot/actions/workflows/ci.yml/badge.svg)](https://github.com/williamcanin/auto-chroot/actions/workflows/ci.yml)
+
+[![Auto Release (auto-chroot)](https://github.com/williamcanin/auto-chroot/actions/workflows/release.yml/badge.svg)](https://github.com/williamcanin/auto-chroot/actions/workflows/release.yml)
 
 ## Features
 
