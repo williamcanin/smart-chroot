@@ -8,16 +8,16 @@
 set -e
 
 # Version current
-VERSION="0.2.0"
+VERSION="0.2.1"
 
 # Output colors and utilities
 # -----------------------------------------------------------------------------
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-CYAN='\033[0;36m'
-BOLD='\033[1m'
-RESET='\033[0m'
+# RED='\033[0;31m'
+# GREEN='\033[0;32m'
+# YELLOW='\033[1;33m'
+# CYAN='\033[0;36m'
+# BOLD='\033[1m'
+# RESET='\033[0m'
 
 info() { printf "${CYAN}[INFO]${RESET}  %s\n" "$1"; }
 success() { printf "${GREEN}[OK]${RESET}    %s\n" "$1"; }
@@ -184,7 +184,7 @@ flow_with_config() {
 
   [ -z "$_boot_mount" ] && die "Missing 'mount' key under [boot] in config."
 
-  printf "\ns%>> Mounting partition: boot s%\n" "${BOLD}" "${RESET}"
+  printf "\n%s>> Mounting partition: boot %s\n" "${BOLD}" "${RESET}"
   mkdir -p /mnt/boot
   mount "$_boot_mount" /mnt/boot ||
     die "Failed to mount $_boot_mount at /mnt/boot."
@@ -222,7 +222,7 @@ ask_device() {
 
 flow_interactive() {
   # --- ROOT ---
-  printf "\ns%=== ROOT Partition ===s%\n" "${BOLD}" "${RESET}"
+  printf "\n%s=== ROOT Partition ===%s\n" "${BOLD}" "${RESET}"
   _root_device=$(ask_device "Enter the root partition (e.g. /dev/sda2):")
 
   if ask_yn "Is the root partition LUKS-encrypted?"; then
@@ -242,7 +242,7 @@ flow_interactive() {
   success "$_root_final_device mounted at /mnt."
 
   # --- HOME ---
-  printf "\ns%=== HOME Partition ===s%\n" "${BOLD}" "${RESET}"
+  printf "\n%s=== HOME Partition ===%s\n" "${BOLD}" "${RESET}"
   _home_device=$(ask_device "Enter the home partition (e.g. /dev/sdb1):")
 
   if ask_yn "Is the home partition LUKS-encrypted?"; then
@@ -262,7 +262,7 @@ flow_interactive() {
   success "$_home_final_device mounted at /mnt/home."
 
   # --- BOOT ---
-  printf "\ns%=== BOOT Partition ===s%\n" "${BOLD}" "${RESET}"
+  printf "\n%s=== BOOT Partition ===%s\n" "${BOLD}" "${RESET}"
   _boot_device=$(ask_device "Enter the boot partition (e.g. /dev/sda1):")
 
   mkdir -p /mnt/boot
@@ -275,7 +275,7 @@ flow_interactive() {
 # Enter the chroot environment
 # -----------------------------------------------------------------------------
 do_chroot() {
-  printf "\ns%${GREEN}=== Entering chroot ===s%\n" "${BOLD}" "${RESET}"
+  printf "\n%s${GREEN}=== Entering chroot ===%s\n" "${BOLD}" "${RESET}"
   info "Running: arch-chroot /mnt"
   arch-chroot /mnt
   success "chroot session ended."
@@ -289,7 +289,7 @@ main() {
   check_root
   check_dependencies
 
-  printf "s%Do you have a configuration file (.conf)? s% [y/n]: " "${BOLD}" "${RESET}"
+  printf "%sDo you have a configuration file (.conf)? %s [y/n]: " "${BOLD}" "${RESET}"
   read -r _has_config
 
   case "$_has_config" in
