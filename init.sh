@@ -8,7 +8,7 @@
 set -e
 
 # Current version
-VERSION="0.2.3"
+VERSION="0.2.4"
 
 # Output utilities
 # -----------------------------------------------------------------------------
@@ -302,15 +302,6 @@ mount_pseudo_fs() {
   mount --rbind /run /mnt/run
   mount --make-rslave /mnt/run
   info "/run mounted at /mnt/run."
-
-  # Copy host DNS resolution into the chroot so network access works
-  # (e.g. pacman -Syu, curl, etc.)
-  if [ -f /etc/resolv.conf ]; then
-    cp /etc/resolv.conf /mnt/etc/resolv.conf
-    info "/etc/resolv.conf copied for DNS resolution inside chroot."
-  else
-    warn "/etc/resolv.conf not found on host — DNS may not work inside chroot."
-  fi
 
   success "System pseudo-filesystems ready."
 }
